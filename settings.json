@@ -1,0 +1,11 @@
+{
+    "exchange_name" : "Binance",
+    "comment" : "exchange_name can be Binance or FTX",
+    "PAIR" : "BTC/BUSD",
+    "comment2" : "The user must provide its own API keys",
+    "API_KEY": "abc1234",
+    "API_SECRET": "abc1234secret",
+    "PASSPHRASE": "myPassphrase",
+    "FTX-SUBACCOUNT" : "sub_acc_name",
+    "comment3" : "FTX-SUBACCOUNT only used for FTX"
+}
