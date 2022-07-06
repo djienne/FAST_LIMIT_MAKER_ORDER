@@ -189,14 +189,15 @@ class fast_limit_maker_order:
 
     ################################################################################
     # OPEN POSITION
-    # WILL TRY FOR LIMIT ORDERS AS MANY TIMES ARE NECESSARY
+    # WILL TRY FOR LIMIT ORDERS 10 TIMES (each waiting for 10 seconds) AND THEN DO A MARKET BUY IF ALL 10 FAILED
+    # that's increased to 20 times on FTX
 
     def OPEN_LONG_BTC(self, BTC_amount):
 
         if self.isBinance:
-            max_limit_orders_to_try = 12
+            max_limit_orders_to_try = 10
         else:
-            max_limit_orders_to_try = 22
+            max_limit_orders_to_try = 20
 
         params = {}
         if self.isBinance:
