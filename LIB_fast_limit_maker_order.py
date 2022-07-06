@@ -193,6 +193,11 @@ class fast_limit_maker_order:
 
     def OPEN_LONG_BTC(self, BTC_amount):
 
+        if self.isBinance:
+            max_limit_orders_to_try = 12
+        else:
+            max_limit_orders_to_try = 22
+
         params = {}
         if self.isBinance:
             params = {
@@ -204,6 +209,7 @@ class fast_limit_maker_order:
             }
         side = 'buy'
         typee = 'limit'
+        market_buy_counter = 0
         processed = False
         while not processed:
             orderbook = self.exchange.fetch_order_book(self.PAIR)
@@ -219,13 +225,25 @@ class fast_limit_maker_order:
                 order = self.exchange.fetchOrder(idd, self.PAIR, params={})
                 t1 = time.time()
                 clock = t1-t0
-                #print(order['status'])
                 if order['status'] == 'canceled' or order['status'] == 'expired' or order['status'] == 'EXPIRED':
                     break
                 if order['status'] == 'closed':
                     processed = True
                     break
                 if (clock > self.max_time_order_sec):
+                    market_buy_counter = market_buy_counter+1
+                    if market_buy_counter >= max_limit_orders_to_try:
+                        print("too much order failed, doing market buy")
+                        try:
+                            self.exchange.cancelOrder(idd, self.PAIR, params={})
+                            print("order has been canceled")
+                        except:
+                            print("order failed to be canceled")
+                            pass
+                        self.exchange.create_order(self.PAIR, 'market', side, BTC_amount, params={})
+                        print("market buy done")
+                        processed = True
+                        break
                     order = self.exchange.fetchOrder(idd, self.PAIR, params={})
                     if order['status'] == 'closed':
                         processed = True
@@ -234,7 +252,8 @@ class fast_limit_maker_order:
                         break
                     try:
                         self.exchange.cancelOrder(idd, self.PAIR, params={})
+                        print("order has been canceled")
                     except:
+                        print("order failed to be canceled")
                         pass
-
         return BTC_amount, price
